@@ -52,7 +52,20 @@ export function useUser(id: string) {
       return {
         variant: 'edit',
         id: data.id,
-        name: data.name
+        name: data.name,
+        email: data.email,
+        formEmploymentPeriod: [
+          new Date(data.formEmploymentPeriod[0]),
+          new Date(data.formEmploymentPeriod[1])
+        ],
+        gender: data.gender,
+        languagesSpoken: data.languagesSpoken,
+        registrationDateTime: new Date(data.registrationDateTime),
+        skills: data.skills,
+        states: data.states,
+        salaryRange: [data.salaryRange[0], data.salaryRange[1]],
+        students: data.students,
+        isTeacher: data.isTeacher
       }
     }
 
