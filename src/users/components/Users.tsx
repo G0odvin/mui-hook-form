@@ -1,5 +1,5 @@
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import { Autocomplete, Button, Container, Stack, TextField, Typography } from '@mui/material';
+import { Autocomplete, Button, Container, List, ListItem, ListItemButton, ListSubheader, Stack, TextField, Typography } from '@mui/material';
 import { defaultValues, Schema } from '../types/schema';
 import { RHFAutocomplite } from '../../components/RHFAutocomplite';
 import { RHFToggleButtonGroup } from '../../components/RHFToggleButton';
@@ -11,6 +11,7 @@ import { RHFSlider } from '../../components/RHFSlider';
 import { RHFSwitch } from '../../components/RHFSwitch';
 import { RHFTextField } from '../../components/RHFTextField';
 import { useEffect } from 'react';
+import { useUsers } from '../services/queries';
 // import { useStates } from '../services/queries';
 
 const cities = [
@@ -73,6 +74,8 @@ export const Users = () => {
   // const gendersQuery = useGenders();
   // const skilsQuery =   useSkils()
 
+  const users = useUsers();
+
   const {
     register,
     control,
@@ -86,7 +89,10 @@ export const Users = () => {
   const { append, fields, remove, replace } = useFieldArray({
     control,
     name: 'students'
-  })
+  });
+
+  const id = useWatch({ control, name: 'id' });
+  const userQuery = useUser(id);
 
   useEffect(() => {
     if (!isTeacher) {
@@ -98,6 +104,15 @@ export const Users = () => {
   return (
     <>
       <Container maxWidth="sm" component='form'>
+        <List subheader={<ListSubheader>Users</ListSubheader>}>
+        {users.data?.map((user) => (
+          <ListItem disablePadding key={user.id}>
+            <ListItemButton onClick={()=> handleUserClick(user.id)}>
+
+            </ListItemButton>
+          </ListItem>
+        ))}
+        </List>
         <Stack sx={{ gap: 2 }} >
           <RHFTextField<Schema> name="name" label="Name" />
           {/* <TextField {...register('name')} label="Name" error={!!errors.name}
