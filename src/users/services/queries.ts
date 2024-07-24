@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import axios from "axios";
 import { Option } from "../../types/Option";
 import { ApiGet } from "../types/apiTypes";
+import { Schema } from "../types/schema";
 
 export function useStates() {
   return useQuery({
@@ -46,15 +47,28 @@ export function useUsers() {
 export function useUser(id: string) {
   return useQuery({
     queryKey: ['user', { id }],
-    queryFn: async () => {
+    queryFn: async (): Promise<Schema> => {
       const { data } = await axios.get<ApiGet>(`http://localhost:8080/users/${id}`);
 
       return {
-        variant: 'edit',
-        id: data.id,
-        name: data.name
-      }
-    }
-
+        variant: 'update',
+				id: data.id.toString(),
+				name: data.name,
+				email: data.email,
+				formerEmploymentPeriod: [
+					new Date(data.formEmploymentPeriod[0]),
+					new Date(data.formEmploymentPeriod[1]),
+				],
+				gender: data.gender,
+				languagesSpoken: data.languagesSpoken,
+				registrationDateAndTime: new Date(data.registrationDateTime),
+				salaryRange: [data.salaryRange[0], data.salaryRange[1]],
+				skills: data.skills,
+				states: data.states,
+				students: data.students,
+				isTeacher: data.isTeacher,
+      };
+    },
+    enabled: !!id,
   })
 }

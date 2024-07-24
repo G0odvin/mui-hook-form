@@ -5,7 +5,26 @@ type Create = {
 type Update = {
   variant: 'update',
   id: string,
-}
+};
+
+// export type UserQueryData = {
+//   variant: string;
+//   id: string;
+//   name: string;
+//   email: string;
+//   formEmploymentPeriod: Date[];
+//   gender: string;
+//   languagesSpoken: string[];
+//   registrationDateTime: Date;
+//   skills: string[];
+//   states: string[];
+//   salaryRange: number[];
+//   students: {
+//     name: string;
+//   }[];
+//   isTeacher: boolean;
+
+// }
 
 export type Common = {
   email: string,
