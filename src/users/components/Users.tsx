@@ -1,4 +1,4 @@
-import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
+import { SubmitHandler, useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { Autocomplete, Button, Container, List, ListItem, ListItemButton, ListItemText, ListSubheader, Stack, TextField, Typography } from '@mui/material';
 import { defaultValues, Schema } from '../types/schema';
 import { RHFAutocomplite } from '../../components/RHFAutocomplite';
@@ -12,6 +12,7 @@ import { RHFSwitch } from '../../components/RHFSwitch';
 import { RHFTextField } from '../../components/RHFTextField';
 import { useEffect } from 'react';
 import { useUser, useUsers } from '../services/queries';
+import { useCreateUser, useEditUser } from '../services/mutations';
 // import { useStates } from '../services/queries';
 
 const cities = [
@@ -82,10 +83,12 @@ export const Users = () => {
     unregister,
     reset,
     setValue,
+    handleSubmit,
     formState: { errors },
   } = useFormContext<Schema>();
 
-  const isTeacher = useWatch({ control, name: 'isTeacher' })
+  const isTeacher = useWatch({ control, name: 'isTeacher' });
+  const variant = useWatch({ control, name: 'variant' });
 
   const { append, fields, remove, replace } = useFieldArray({
     control,
@@ -93,10 +96,21 @@ export const Users = () => {
   });
 
   const id = useWatch({ control, name: 'id' });
-  const userQuery = useUser(id);
+  const userQuery= useUser(id);
 
   const handleUserClick = (id: string) => {
     setValue('id', id)
+  };
+
+  const createUserMutation = useCreateUser();
+  const editUserMutation = useEditUser();
+
+  const onSubmit: SubmitHandler<Schema> = (data) => {
+    if(variant=== 'create') {
+      createUserMutation.mutate(data)
+    } else {
+      editUserMutation.mutate(data);
+    }
   }
 
   useEffect(() => {
@@ -104,11 +118,18 @@ export const Users = () => {
       replace([]);
       unregister('students');
     }
-  }, [isTeacher, replace, unregister])
+  }, [isTeacher, replace, unregister]);
+
+  useEffect(() => {
+    if (userQuery.data) {
+
+      reset(userQuery.data);
+    }
+  }, [reset, userQuery.data]);
 
   return (
     <>
-      <Container maxWidth="sm" component='form'>
+      <Container maxWidth="sm" component='form' onSubmit={handleSubmit(onSubmit)}>
         <Stack sx={{ flexDirection: 'row', gap: 2 }}>
         <List subheader={<ListSubheader>Users</ListSubheader>}>
           {users.data?.map((user) => (
@@ -139,9 +160,9 @@ export const Users = () => {
           <RHFToggleButtonGroup<Schema> name='languagesSpoken' options={languages} />
           <RHFRadioGroup<Schema> name='gender' label='Gender' options={genders} />
           <RHFCheckboxGroup<Schema> name='skills' options={skills} label='Skills' />
-          <RHFDateTimePicker<Schema> name='registrationDateTime' label='Registration Date & Time' />
+          <RHFDateTimePicker<Schema> name='registrationDateAndTime' label='Registration Date & Time' />
           <Typography>Former Employment Period:</Typography>
-          <RHFDateRangePicker<Schema> name='formEmploymentPeriod' />
+          <RHFDateRangePicker<Schema> name='formerEmploymentPeriod' />
           <Typography>Salary Range</Typography>
           <RHFSlider<Schema> name='salaryRange' />
           <RHFSwitch<Schema> name='isTeacher' label='Are You a Teacher' />
@@ -159,7 +180,7 @@ export const Users = () => {
         </Stack>
 
         <Stack sx={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <Button type='submit' onClick={handleSubmit}>Submit</Button>
+          <Button variant='contained' type='submit'>{variant === 'create' ? 'New User' : 'Update User'}</Button>
           <Button onClick={() => reset(defaultValues)}>Reset form</Button>
         </Stack>
         </Stack>
